@@ -1,9 +1,10 @@
 module Main exposing (..)
 
-import Svg exposing (Svg, rect, svg)
+import Svg exposing (Svg, rect, svg, text)
 import Svg.Attributes exposing (..)
 import Time exposing (Time, second)
 import Html.App as Html
+import Html
 import Debug exposing (log)
 
 
@@ -101,7 +102,7 @@ clamper model =
 killSpeed : Int -> Bool -> Int
 killSpeed speed touching =
     if touching then
-        speed * -1 
+        speed * -1
     else
         speed
 
@@ -197,20 +198,20 @@ subscriptions model =
 view : Model -> Svg Msg
 view model =
     let
-        ( boundsX, boundY ) =
+        ( boundsX, boundsY ) =
             model.bounds
 
         boundaryX =
             toString (boundsX)
 
         boundaryY =
-            toString (boundY)
+            toString (boundsY)
     in
         svg
             [ version "1.1"
             , width boundaryX
-            , height boundaryY
-            , viewBox ("0 0 " ++ boundaryX ++ " " ++ boundaryY)
+            , height ( toString (boundsY + 100) )
+            , viewBox ("0 0 " ++ boundaryX ++ " " ++ toString (boundsY + 100))
             ]
             [ rect
                 [ width boundaryX
@@ -222,7 +223,32 @@ view model =
             , svg
                 []
                 [ markerRect model ]
+            , svg []
+                [ scoreRect model ]
             ]
+
+
+scoreRect : Model -> Svg Msg
+scoreRect model =
+    let
+        ( speedX, speedY ) =
+            model.speed
+
+        msg =
+            "x/y: "
+            ++ (toString speedX)
+            ++ "/"
+            ++ (toString speedY)
+    in
+        Svg.text'
+            [ x "300"
+            , y "420"
+            , width "200"
+            , height "30"
+            , fontSize "16"
+            , fontFamily "Verdana"
+            ]
+            [ Html.text msg ]
 
 
 markerRect : Model -> Svg Msg
