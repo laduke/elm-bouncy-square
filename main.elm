@@ -236,9 +236,9 @@ scoreRect model =
 
         msg =
             "x/y: "
-            ++ (toString speedX)
+            ++ (speedX |> abs |> toString)
             ++ "/"
-            ++ (toString speedY)
+            ++ (speedY |> abs |> toString)
     in
         Svg.text'
             [ x "300"
@@ -246,7 +246,6 @@ scoreRect model =
             , width "200"
             , height "30"
             , fontSize "16"
-            , fontFamily "Verdana"
             ]
             [ Html.text msg ]
 
