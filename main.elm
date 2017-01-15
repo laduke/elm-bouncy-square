@@ -210,7 +210,7 @@ view model =
         svg
             [ version "1.1"
             , width boundaryX
-            , height ( toString (boundsY + 100) )
+            , height (toString (boundsY + 100))
             , viewBox ("0 0 " ++ boundaryX ++ " " ++ toString (boundsY + 100))
             ]
             [ rect
@@ -236,11 +236,11 @@ scoreRect model =
 
         msg =
             "x/y: "
-            ++ (speedX |> abs |> toString)
-            ++ "/"
-            ++ (speedY |> abs |> toString)
+                ++ (speedX |> abs |> toString)
+                ++ "/"
+                ++ (speedY |> abs |> toString)
     in
-        Svg.text'
+        Svg.text_
             [ x "300"
             , y "420"
             , width "200"
