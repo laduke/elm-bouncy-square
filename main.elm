@@ -3,7 +3,7 @@ module Main exposing (..)
 import Svg exposing (Svg, rect, svg, text)
 import Svg.Attributes exposing (..)
 import Time exposing (Time, second)
-import Html.App as Html
+import Html
 import Html
 import Debug exposing (log)
 
@@ -14,7 +14,7 @@ import Keyboard
 import AnimationFrame
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program
         { init = init
