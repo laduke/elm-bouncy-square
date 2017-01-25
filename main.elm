@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Svg exposing (Svg, rect, svg, text)
+import Svg exposing (Svg, ellipse, rect, svg, text)
 import Svg.Attributes exposing (..)
 import Time exposing (Time, second)
 import Html
@@ -30,7 +30,7 @@ main =
 
 init : ( Model, Cmd b )
 init =
-    ( marker ( 9, 9 ) ( 2, 2 ) ( 400, 400 ) ( 20, 20 ) "green"
+    ( marker ( 90, 90 ) ( 2, 2 ) ( 400, 400 ) ( 20, 20 ) "green"
     , Cmd.none
     )
 
@@ -123,10 +123,10 @@ boundsCheck model =
             model.bounds
 
         touchingX =
-            x <= 0 || (x + sizeX) >= boundsX
+            x <= sizeX || (x + sizeX) >= boundsX
 
         touchingY =
-            y <= 0 || (y + sizeY) >= boundsY
+            y <= sizeY || (y + sizeY) >= boundsY
     in
         { model | speed = ( killSpeed speedX touchingX, killSpeed speedY touchingY ) }
 
@@ -222,7 +222,7 @@ view model =
                 []
             , svg
                 []
-                [ markerRect model ]
+                [ particle model ]
             , svg []
                 [ scoreRect model ]
             ]
@@ -250,8 +250,8 @@ scoreRect model =
             [ Html.text msg ]
 
 
-markerRect : Model -> Svg Msg
-markerRect marker =
+particle : Model -> Svg Msg
+particle marker =
     let
         ( posX, posY ) =
             marker.xy
@@ -264,12 +264,17 @@ markerRect marker =
 
         ( sX, sY ) =
             marker.size
+
+        ( speedX, speedY ) =
+            marker.speed
     in
-        rect
+        ellipse
             [ fill marker.color
-            , x xStr
-            , y yStr
-            , width (toString sX)
-            , height (toString sY)
+            , cx xStr
+            , cy yStr
+            -- , rx (toString ( sX - (abs speedX ) ))
+            -- , ry (toString ( sY - (abs speedY ) ))
+            , rx (toString sX )
+            , ry (toString sY )
             ]
             []
