@@ -12,6 +12,8 @@ import Debug exposing (log)
 
 import Keyboard
 import AnimationFrame
+import Animation exposing (px, turn)
+import Color
 
 
 main : Program Never Model Msg
@@ -30,7 +32,7 @@ main =
 
 init : ( Model, Cmd b )
 init =
-    ( marker ( 90, 90 ) ( 2, 2 ) ( 400, 400 ) ( 20, 20 ) "green"
+    ( Model ( 90, 90 ) ( 2, 2 ) ( 400, 400 ) ( 20, 20 ) "green" squash
     , Cmd.none
     )
 
@@ -41,6 +43,7 @@ type alias Model =
     , bounds : Position
     , size : Size
     , color : String
+    , style : Animation.State
     }
 
 
@@ -56,9 +59,11 @@ type alias Speed =
     ( Int, Int )
 
 
-marker : Position -> Speed -> Position -> Size -> String -> Model
-marker position speed bounds size color =
-    Model position speed bounds size color
+squash : Animation.State
+squash =
+    Animation.style
+        [ Animation.fill Color.black
+        ]
 
 
 
@@ -68,6 +73,7 @@ marker position speed bounds size color =
 type Msg
     = KeyMsg Keyboard.KeyCode
     | TimeUpdate Time
+    | Animate Animation.Msg
 
 
 newPosition : Position -> Speed -> Position
@@ -107,7 +113,7 @@ killSpeed speed touching =
         speed
 
 
-boundsCheck : Model -> Model
+boundsCheck : Model -> ( Model, Cmd Msg )
 boundsCheck model =
     let
         ( x, y ) =
@@ -127,8 +133,26 @@ boundsCheck model =
 
         touchingY =
             y <= sizeY || (y + sizeY) >= boundsY
+
+        newStyle =
+            if touchingX then
+                Animation.interrupt
+                    [ Animation.to
+                        [ Animation.fill (Color.red)
+                        ]
+                    ]
+                    model.style
+            else if touchingY then
+                Animation.interrupt
+                    [ Animation.to
+                        [ Animation.fill (Color.green)
+                        ]
+                    ]
+                    model.style
+            else
+                model.style
     in
-        { model | speed = ( killSpeed speedX touchingX, killSpeed speedY touchingY ) }
+        ( { model | speed = ( killSpeed speedX touchingX, killSpeed speedY touchingY ), style = newStyle }, Cmd.none )
 
 
 applyPhysics : Float -> Model -> Model
@@ -146,13 +170,14 @@ applyPhysics dt model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Animate animMsg ->
+            ( { model | style = Animation.update animMsg model.style }, Cmd.none )
+
         TimeUpdate dt ->
-            ( model
+            model
                 |> (applyPhysics dt)
                 |> clamper
                 |> boundsCheck
-            , Cmd.none
-            )
 
         --( touching, Cmd.none )
         KeyMsg code ->
@@ -188,6 +213,7 @@ subscriptions model =
         [ --Time.every second Tick
           AnimationFrame.diffs TimeUpdate
         , Keyboard.downs KeyMsg
+        , Animation.subscription Animate [ model.style ]
         ]
 
 
@@ -216,7 +242,8 @@ view model =
             [ rect
                 [ width boundaryX
                 , height boundaryY
-                , fill "grey"
+                , fill "white"
+                , stroke "grey"
                   --, onClick Move
                 ]
                 []
@@ -268,13 +295,17 @@ particle marker =
         ( speedX, speedY ) =
             marker.speed
     in
-        ellipse
-            [ fill marker.color
-            , cx xStr
-            , cy yStr
-            -- , rx (toString ( sX - (abs speedX ) ))
-            -- , ry (toString ( sY - (abs speedY ) ))
-            , rx (toString sX )
-            , ry (toString sY )
+        Svg.g []
+            [ ellipse
+                (Animation.render marker.style
+                    ++ [ cx xStr
+                       , cy yStr
+                         -- , rx (toString ( sX - (abs speedX ) ))
+                         -- , ry (toString ( sY - (abs speedY ) ))
+                       , rx (toString sX)
+                       , ry (toString sY)
+                       , fill marker.color
+                       ]
+                )
+                []
             ]
-            []
