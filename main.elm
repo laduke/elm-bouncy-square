@@ -32,7 +32,7 @@ main =
 
 init : ( Model, Cmd b )
 init =
-    ( Model ( 90, 90 ) ( 2, 2 ) ( 400, 400 ) ( 20, 20 ) "green" squash
+    ( Model ( 90, 90 ) ( 2, 2 ) ( 100, 100 ) ( 4, 4 ) "green" squash
     , Cmd.none
     )
 
@@ -164,7 +164,7 @@ applyPhysics dt model =
         ( speedX, speedY ) =
             model.speed
     in
-        { model | xy = ( (x + (speedX * Basics.round dt) // 20), (y + (speedY * Basics.round dt) // 20) ) }
+        { model | xy = ( (x + (speedX * Basics.round dt) // 30), (y + (speedY * Basics.round dt) // 30) ) }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -235,16 +235,15 @@ view model =
     in
         svg
             [ version "1.1"
-            , width boundaryX
-            , height (toString (boundsY + 100))
-            , viewBox ("0 0 " ++ boundaryX ++ " " ++ toString (boundsY + 100))
+            , width "100%"
+            , height "100%"
+            , viewBox ("0 0 100 100")
             ]
             [ rect
                 [ width boundaryX
                 , height boundaryY
                 , fill "white"
                 , stroke "grey"
-                  --, onClick Move
                 ]
                 []
             , svg
