@@ -32,7 +32,7 @@ main =
 
 init : ( Model, Cmd b )
 init =
-    ( Model ( 90, 90 ) ( 2, 2 ) ( 100, 100 ) ( 4, 4 ) "green" squash
+    ( Model ( 90, 90 ) ( 2, 2 ) ( 100, 100 ) ( 4, 4 ) "green" (squash ( 90, 90 ))
     , Cmd.none
     )
 
@@ -59,11 +59,17 @@ type alias Speed =
     ( Int, Int )
 
 
-squash : Animation.State
-squash =
-    Animation.style
-        [ Animation.fill Color.black
-        ]
+squash : Position -> Animation.State
+squash origin =
+    let
+        ( x, y ) =
+            origin
+    in
+        Animation.style
+            [ Animation.fill Color.black
+            , Animation.transformOrigin (px <| toFloat x) (px <| toFloat y) (px 0)
+            , Animation.rotate (Animation.deg 0)
+            ]
 
 
 
@@ -171,7 +177,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Animate animMsg ->
-            ( { model | style = Animation.update animMsg model.style }, Cmd.none )
+            let
+                ( x, y ) =
+                    model.xy
+
+                orig =
+                    squash ( x, y )
+            in
+                ( { model | style = Animation.update animMsg orig }, Cmd.none )
 
         TimeUpdate dt ->
             model
@@ -235,8 +248,8 @@ view model =
     in
         svg
             [ version "1.1"
-            , width "100%"
-            , height "100%"
+            , width "80%"
+            , height "80%"
             , viewBox ("0 0 100 100")
             ]
             [ rect
